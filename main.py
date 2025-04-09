@@ -13,14 +13,15 @@ app.add_middleware(
 )
 
 @app.get("/get_url_response")
-def get_url_response(url: str):
+def get_url_response(url: str, publisher_id: int = 3):
     llm_url = "https://52.151.194.159:8001/scrap"
 
     # Token (replace with your actual token)
     token = "mysecuretoken21429"
 
     # Query parameters
-    params = {"url": url}
+    params = {"url": url,
+              "publisher_id": publisher_id}
 
     # Headers including the Authorization token
     # headers = {
