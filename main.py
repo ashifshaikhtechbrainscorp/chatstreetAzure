@@ -16,28 +16,43 @@ app.add_middleware(
 def get_url_response(url: str, publisher_id: int = 3):
     llm_url = "https://52.151.194.159:8001/scrap"
 
-    # Token (replace with your actual token)
+    # Token (if needed later)
     token = "mysecuretoken21429"
 
     # Query parameters
-    params = {"url": url,
-              "publisher_id": publisher_id}
+    params = {
+        "url": url,
+        "publisher_id": publisher_id
+    }
 
-    # Headers including the Authorization token
-    # headers = {
-    #     "Authorization": f"Bearer {token}"
-    # }
+    print(f"[INFO] Received request for URL: {url}")
+    print(f"[INFO] Forwarding request to LLM server: {llm_url} with params: {params}")
 
-    # Make the GET request
-    response = requests.get(url=llm_url, params=params, verify=False)  # verify=False to ignore SSL warnings
+    try:
+        response = requests.get(url=llm_url, params=params, verify=False)
+        print(f"[DEBUG] LLM Response Code: {response.status_code}")
 
-    # Print the response
-    if response.status_code == 200:
-        print(response.json())
-        return response.json()
-    else:
-        return f"Error {response.status_code}: {response.text}"
+        if response.status_code == 200:
+            print(f"[DEBUG] LLM Response JSON (truncated): {str(response.json())[:500]}")
+            return response.json()
+        else:
+            print(f"[ERROR] LLM server returned status code: {response.status_code}")
+            print(f"[ERROR] Response content: {response.text}")
+            return {
+                "status_code": response.status_code,
+                "error": "Non-200 response from LLM server",
+                "details": response.text
+            }
+
+    except requests.exceptions.Timeout:
+        print(f"[EXCEPTION] Timeout while trying to reach LLM server at {llm_url}")
+        return {"error": "Request to LLM server timed out"}
+
+    except requests.exceptions.RequestException as e:
+        print(f"[EXCEPTION] General error during request to LLM server: {e}")
+        return {"error": "Request to LLM server failed", "details": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port =8000)
+    print("[BOOT] Starting FastAPI server on port 8000...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
