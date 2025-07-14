@@ -1,6 +1,9 @@
 import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("🚀 App starting up")
 
 app = FastAPI()
 
@@ -14,7 +17,7 @@ app.add_middleware(
 
 @app.get("/get_url_response")
 def get_url_response(url: str, publisher_id: int = 3):
-    llm_url = "https://52.151.194.159:8001/scrap"
+    llm_url = "https://chatstreetbrains.xyz/scrap"
 
     # Token (if needed later)
     token = "mysecuretoken21429"
